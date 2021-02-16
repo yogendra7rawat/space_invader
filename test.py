@@ -100,9 +100,11 @@ class Player():
 			else:
 				for obj in objs:
 					if laser.collision(obj):
-						objs.remove(obj)
-						if laser in self.lasers:
-							self.lasers.remove(laser)
+						obj.health-=1.5
+						if(obj.health<=0):
+							objs.remove(obj)
+							if laser in self.lasers:
+								self.lasers.remove(laser)
 				
 			
 	def healthbar(self, window):
@@ -113,16 +115,18 @@ class Player():
 class Enemy():
 	COOLDOWN =30
 	color_map = {"red":(red,red_laser),"green":(green,green_laser),"blue":(blue,blue_laser)}
-	def __init__(self,x,y,color):
+	def __init__(self,x,y,color,health =100):
 		self.x = x
 		self.y = y
 		self.image,self.laser_image = self.color_map[color]
 		self.mask = pygame.mask.from_surface(self.image)
 		self.enemy_lasers = []
 		self.cooldown_counter =0
+		self.health = health
 		
 	def Draw(self,screen):
 		screen.blit(self.image,(self.x,self.y))
+		self.healthbar(screen)
 		
 	def move_laser(self,vel,obj):
 		self.cooldown()
@@ -158,6 +162,10 @@ class Enemy():
 			self.cooldown_counter=0
 		elif self.cooldown_counter>0:
 			self.cooldown_counter+=1
+			
+	def healthbar(self, window):
+		pygame.draw.rect(screen, (255,0,0), (self.x, self.y + self.image.get_height() + 10, self.image.get_width(), 10))
+		pygame.draw.rect(screen, (0,255,0), (self.x, self.y + self.image.get_height() + 10, self.image.get_width()*(self.health/100), 10))
 
 
 def collide(obj1,obj2):
@@ -251,7 +259,3 @@ def main():
 		pygame.display.update()
 		
 main()
-
-
-		
-		
